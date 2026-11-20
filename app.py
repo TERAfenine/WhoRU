@@ -6,14 +6,34 @@ from streamlit_drawable_canvas import st_canvas
 from src.config import MODEL_PATH, CLASS_NAMES_PATH
 from src.predict import load_artifacts, predict_image
 
+KOREAN_NAMES = {
+    "chloroplast": "엽록체",
+    "e_r": "소포체",
+    "golgi_body": "골지체",
+    "mitochondria": "미토콘드리아",
+    "nucleus": "핵",
+    "ribosome": "라이보솜",
+    "vacuole": "액포",
+}
+
+# 각 소기관이 예측됐을 때 보여 줄 문장을 따옴표 안에 적어 주세요.
+CLASS_COMMENTS = {
+    "엽록체": "타이라코이드, 스트로마, 그라나",
+    "소포체": "거친면소포체, 매끈면소포체",
+    "골지체": "시스터나 구조",
+    "미토콘드리아": "크리스타 구조",
+    "핵": "핵공",
+    "라이보솜": "대단위체, 소단위체",
+    "액포": "주로 식물세포에 존재",
+}
 
 # 웹앱 설정
 st.set_page_config(
-    page_title="AI 그림 맞히기",
+    page_title="AI 세포소기관 그림 맞히기",
     page_icon="🎨"
 )
 
-st.title("🎨 AI 그림 맞히기")
+st.title("🎨 AI 세포소기관 그림 맞히기")
 st.write("아래 그림판에 그림을 그려보세요!")
 
 
@@ -98,13 +118,17 @@ if st.button("AI로 예측하기", type="primary"):
         )
 
         # 결과 출력
-        predicted_class = results[0][0]
+        display_results = [(KOREAN_NAMES.get(name, name), score) for name, score in results]
+        predicted_class = display_results[0][0]
 
         st.subheader("AI 예측 결과")
         st.success(f"AI의 예측: {predicted_class}")
+        comment = CLASS_COMMENTS.get(predicted_class, "").strip()
+        if comment:
+            st.write(comment)
 
         st.write("클래스별 예측 점수")
 
-        for name, score in results:
+        for name, score in display_results:
             st.write(f"{name}: {score:.1%}")
             st.progress(float(score))
