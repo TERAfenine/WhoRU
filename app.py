@@ -122,10 +122,11 @@ if st.button("AI로 예측하기", type="primary"):
         predicted_class = display_results[0][0]
 
         st.subheader("AI 예측 결과")
-        st.success(f"AI의 예측: {predicted_class}")
+        message = f"AI의 예측: {predicted_class}"
         comment = CLASS_COMMENTS.get(predicted_class, "").strip()
         if comment:
-            st.write(comment)
+            message += f"\n\n{comment}"
+        st.success(message)
 
         st.write("클래스별 예측 점수")
 
